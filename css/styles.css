@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Sentiment</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    min-height: 100vh;
+    color: #2c3e50;
+}
+
+.screen {
+    display: none;
+    padding: 40px 20px;
+}
+
+.screen.active {
+    display: block;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.input-section {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.url-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: #05E6C6;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: #05E6C6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: #04c9ad;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 230, 198, 0.3);
+}
+
+.btn-primary:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.help-text {
+    text-align: center;
+    color: #95a5a6;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #05E6C6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+.error-message {
+    background: #ffe6e6;
+    border: 2px solid #ff4444;
+    color: #cc0000;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.btn-back {
+    background: #ecf0f1;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: #d5dbdb;
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.results-header h2 {
+    color: #27ae60;
+    font-size: 2rem;
+}
+
+.info-card, .metrics-card, .sentiment-card, .conclusions-card, .keywords-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.info-card h3, .metrics-card h3, .sentiment-card h3, .conclusions-card h3, .keywords-card h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: 600;
+    color: #7f8c8d;
+}
+
+.value {
+    color: #2c3e50;
+    word-break: break-all;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.metric {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.metric-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #05E6C6;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.sentiment-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.chart-container {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.sentiment-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sentiment-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sentiment-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.sentiment-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.sentiment-dot.positive {
+    background: #05E6C6;
+}
+
+.sentiment-dot.neutral {
+    background: #95a5a6;
+}
+
+.sentiment-dot.negative {
+    background: #e74c3c;
+}
+
+.bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bar {
+    height: 24px;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+}
+
+.bar.positive {
+    background: #05E6C6;
+}
+
+.bar.neutral {
+    background: #95a5a6;
+}
+
+.bar.negative {
+    background: #e74c3c;
+}
+
+.bar-percentage {
+    min-width: 45px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.conclusions-text {
+    line-height: 1.8;
+    color: #34495e;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #05E6C6;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.insight-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.insight-label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.insight-value {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.keyword-tag {
+    padding: 8px 16px;
+    background: #ecf0f1;
+    border-radius: 20px;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .sentiment-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Pantalla de entrada -->
+    <div id="inputScreen" class="screen active">
+        <div class="container">
+            <div class="header">
+                <h1>📊 Analizador de Sentiment</h1>
+                <p class="subtitle">Analiza las emociones y reacciones en posts de Bluesky</p>
+            </div>
+            
+            <div class="input-section">
+                <input 
+                    type="text" 
+                    id="urlInput" 
+                    placeholder="Inserta aquí la url del post que quieres analizar"
+                    class="url-input"
+                >
+                <button id="analyzeBtn" class="btn-primary">Analizar</button>
+                <p class="help-text">Ejemplo: https://bsky.app/profile/usuario.bsky.social/post/...</p>
+            </div>
+
+            <div id="loadingSection" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Analizando comentarios y sentiment...</p>
+            </div>
+
+            <div id="errorSection" class="error-message hidden">
+                <p id="errorText"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de resultados -->
+    <div id="resultsScreen" class="screen">
+        <div class="container">
+            <button id="backBtn" class="btn-back">← Nueva Análisis</button>
+            
+            <div class="results-header">
+                <h2>✓ Análisis Completado</h2>
+            </div>
+
+            <!-- URL y Red Social -->
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="label">📎 URL Analizada:</span>
+                    <span id="analyzedUrl" class="value"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">🌐 Red Social:</span>
+                    <span class="value">Bluesky</span>
+                </div>
+            </div>
+
+            <!-- Métricas del Post -->
+            <div class="metrics-card">
+                <h3>📊 Métricas del Post</h3>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <span class="metric-icon">❤️</span>
+                        <span class="metric-value" id="likesCount">-</span>
+                        <span class="metric-label">Likes</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-icon">🔁</span>
+                        <span class="metric-value" id="repostsCount">-</span>
+                        <span class="metric-label">Reposts</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-icon">💬</span>
+                        <span class="metric-value" id="commentsCount">-</span>
+                        <span class="metric-label">Comentarios</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-icon">👁️</span>
+                        <span class="metric-value" id="reachCount">-</span>
+                        <span class="metric-label">Alcance Est.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Análisis de Sentiment -->
+            <div class="sentiment-card">
+                <h3>💭 Análisis de Sentiment</h3>
+                <div class="sentiment-content">
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                    <div class="sentiment-bars">
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot positive"></span>
+                                <span>Positivo</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar positive" id="positiveBar"></div>
+                                <span class="bar-percentage" id="positivePercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot neutral"></span>
+                                <span>Neutral</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar neutral" id="neutralBar"></div>
+                                <span class="bar-percentage" id="neutralPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot negative"></span>
+                                <span>Negativo</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar negative" id="negativeBar"></div>
+                                <span class="bar-percentage" id="negativePercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conclusiones -->
+            <div class="conclusions-card">
+                <h3>🔍 Conclusiones del Análisis</h3>
+                <div id="conclusionsText" class="conclusions-text">
+                    Cargando conclusiones...
+                </div>
+                <div class="insights-grid">
+                    <div class="insight-item">
+                        <span class="insight-label">Tono emocional dominante:</span>
+                        <span class="insight-value" id="dominantTone">-</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-label">Nivel de engagement:</span>
+                        <span class="insight-value" id="engagementLevel">-</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-label">Controversia detectada:</span>
+                        <span class="insight-value" id="controversyLevel">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Palabras clave -->
+            <div class="keywords-card">
+                <h3>💡 Palabras Más Frecuentes</h3>
+                <div id="keywordsContainer" class="keywords-container">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/bluesky-api.js"></script>
+    <script src="js/sentiment-ai.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
+/* Estilos para configuración de token */
+.token-setup {
+    text-align: left;
+}
+
+.token-setup h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.token-info {
+    color: #7f8c8d;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.token-steps {
+    background: #f8f9fa;
+    padding: 20px 20px 20px 40px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.token-steps li {
+    margin-bottom: 8px;
+}
+
+.token-steps a {
+    color: #05E6C6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.token-steps a:hover {
+    text-decoration: underline;
+}
+
+.token-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-family: monospace;
+}
+
+.token-input:focus {
+    outline: none;
+    border-color: #05E6C6;
+}
+
+.token-note {
+    text-align: center;
+    color: #95a5a6;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #d5dbdb;
+}
