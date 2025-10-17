@@ -1,33 +1,10 @@
-// Aplicación principal
+// Aplicación principal - Version publica sin token
 
 let currentAnalysis = null;
-
-function saveToken(token) {
-    localStorage.setItem('hf_token', token);
-    console.log('Token guardado');
-}
-
-function getToken() {
-    return localStorage.getItem('hf_token') || '';
-}
-
-function hasValidToken() {
-    const token = getToken();
-    return token && token.length > 0 && token.startsWith('hf_');
-}
-
-function clearToken() {
-    localStorage.removeItem('hf_token');
-}
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Aplicacion cargada');
     
-    const tokenSetup = document.getElementById('tokenSetup');
-    const analysisSection = document.getElementById('analysisSection');
-    const tokenInput = document.getElementById('tokenInput');
-    const saveTokenBtn = document.getElementById('saveTokenBtn');
-    const changeTokenBtn = document.getElementById('changeTokenBtn');
     const urlInput = document.getElementById('urlInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const loadingSection = document.getElementById('loadingSection');
@@ -37,10 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsScreen = document.getElementById('resultsScreen');
     const backBtn = document.getElementById('backBtn');
     
-    checkTokenStatus();
-    
-    saveTokenBtn.addEventListener('click', handleSaveToken);
-    changeTokenBtn.addEventListener('click', handleChangeToken);
     analyzeBtn.addEventListener('click', startAnalysis);
     backBtn.addEventListener('click', resetApp);
     
@@ -55,54 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     console.log('Listeners configurados');
-    
-    function checkTokenStatus() {
-        console.log('Verificando token...');
-        if (hasValidToken()) {
-            console.log('Token encontrado');
-            showAnalysisSection();
-        } else {
-            console.log('No hay token');
-            showTokenSetup();
-        }
-    }
-    
-    function showTokenSetup() {
-        tokenSetup.classList.remove('hidden');
-        analysisSection.classList.add('hidden');
-    }
-    
-    function showAnalysisSection() {
-        tokenSetup.classList.add('hidden');
-        analysisSection.classList.remove('hidden');
-    }
-    
-    function handleSaveToken() {
-        console.log('Boton clickeado');
-        const token = tokenInput.value.trim();
-        
-        if (!token) {
-            alert('Por favor, ingresa un token valido');
-            return;
-        }
-        
-        if (!token.startsWith('hf_')) {
-            alert('El token debe comenzar con hf_');
-            return;
-        }
-        
-        saveToken(token);
-        alert('Token guardado correctamente');
-        showAnalysisSection();
-        tokenInput.value = '';
-    }
-    
-    function handleChangeToken() {
-        if (confirm('Quieres cambiar tu token de Hugging Face?')) {
-            clearToken();
-            showTokenSetup();
-        }
-    }
     
     async function startAnalysis() {
         const url = urlInput.value.trim();

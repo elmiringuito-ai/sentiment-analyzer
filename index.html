@@ -461,24 +461,15 @@ body {
             </div>
             
             <div class="input-section">
-                <div id="tokenSetup" class="token-setup">
-                    <h3>Configuracion Inicial</h3>
-                    <p class="token-info">Para usar esta herramienta, necesitas un token gratuito de Hugging Face:</p>
-                    <ol class="token-steps">
-                        <li>Ve a <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a></li>
-                        <li>Crea una cuenta gratuita si no tienes</li>
-                        <li>Clic en "New token" - Tipo: "Read" - Copia el token</li>
-                        <li>Pegalo aqui abajo:</li>
-                    </ol>
-                    <input 
-                        type="password" 
-                        id="tokenInput" 
-                        placeholder="hf_xxxxxxxxxxxxxxxxxxxxx"
-                        class="token-input"
-                    >
-                    <button id="saveTokenBtn" class="btn-primary">Guardar Token</button>
-                    <p class="token-note">Tu token se guarda solo en tu navegador. Nunca lo compartimos.</p>
-                </div>
+    <input 
+        type="text" 
+        id="urlInput" 
+        placeholder="Inserta aqui la url del post que quieres analizar"
+        class="url-input"
+    >
+    <button id="analyzeBtn" class="btn-primary">Analizar</button>
+    <p class="help-text">Ejemplo: https://bsky.app/profile/usuario.bsky.social/post/...</p>
+</div>
 
                 <div id="analysisSection" class="hidden">
                     <input 

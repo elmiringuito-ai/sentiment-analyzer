@@ -23,28 +23,19 @@ async function analyzeSentiment(texts) {
 }
 
 async function callHuggingFace(text) {
-    const token = localStorage.getItem('hf_token');
-    
-    if (!token) {
-        throw new Error('No hay token configurado');
-    }
-    
-    const response = await fetch(
-        `${CONFIG.HUGGINGFACE_API}/${CONFIG.SENTIMENT_MODEL}`,
-        {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                inputs: text.substring(0, 500)
-            })
-        }
-    );
+    // Llamar a la función de Netlify en lugar de Hugging Face directamente
+    const response = await fetch('/.netlify/functions/analyze-sentiment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            inputs: text.substring(0, 500)
+        })
+    });
     
     if (!response.ok) {
-        throw new Error('Error en API de Hugging Face');
+        throw new Error('Error en analisis de sentiment');
     }
     
     const result = await response.json();
