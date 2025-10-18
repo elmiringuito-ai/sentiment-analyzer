@@ -1,4 +1,4 @@
-// Funciones para análisis de sentiment con Hugging Face
+// Funciones para análisis de sentiment usando Netlify Functions
 
 async function analyzeSentiment(texts) {
     const results = [];
@@ -7,35 +7,32 @@ async function analyzeSentiment(texts) {
         if (!text || text.trim().length === 0) continue;
         
         try {
-            const sentiment = await callHuggingFace(text);
+            const sentiment = await callNetlifyFunction(text);
             results.push(sentiment);
         } catch (error) {
             console.error('Error analizando texto:', error);
-            // Si falla, usar neutral como fallback
             results.push({ label: 'neutral', score: 1.0 });
         }
         
-        // Pequeña pausa para no sobrecargar la API
         await sleep(100);
     }
     
     return results;
 }
 
-async function callHuggingFace(text) {
-    // Llamar a la función de Netlify en lugar de Hugging Face directamente
+async function callNetlifyFunction(text) {
     const response = await fetch('/.netlify/functions/analyze-sentiment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            inputs: text.substring(0, 500)
+            text: text.substring(0, 500)
         })
     });
     
     if (!response.ok) {
-        throw new Error('Error en analisis de sentiment');
+        throw new Error('Error en API de sentiment');
     }
     
     const result = await response.json();

@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-  // Configurar CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -7,7 +6,6 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  // Manejar preflight request
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -16,7 +14,6 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Solo aceptar POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -36,7 +33,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Llamar a Hugging Face con el token del servidor
     const response = await fetch(
       'https://api-inference.huggingface.co/models/cardiffnlp/twitter-xlm-roberta-base-sentiment-multilingual',
       {

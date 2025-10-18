@@ -213,12 +213,6 @@ body {
     border-radius: 8px;
 }
 
-.metric-icon {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 10px;
-}
-
 .metric-value {
     display: block;
     font-size: 1.8rem;
@@ -360,83 +354,6 @@ body {
     font-size: 0.95rem;
 }
 
-.token-setup {
-    text-align: left;
-}
-
-.token-setup h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-.token-info {
-    color: #7f8c8d;
-    margin-bottom: 15px;
-    line-height: 1.6;
-}
-
-.token-steps {
-    background: #f8f9fa;
-    padding: 20px 20px 20px 40px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    line-height: 1.8;
-}
-
-.token-steps li {
-    margin-bottom: 8px;
-}
-
-.token-steps a {
-    color: #05E6C6;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.token-steps a:hover {
-    text-decoration: underline;
-}
-
-.token-input {
-    width: 100%;
-    padding: 16px;
-    font-size: 1rem;
-    border: 2px solid #e1e8ed;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-family: monospace;
-}
-
-.token-input:focus {
-    outline: none;
-    border-color: #05E6C6;
-}
-
-.token-note {
-    text-align: center;
-    color: #95a5a6;
-    font-size: 0.85rem;
-    margin-top: 10px;
-    font-style: italic;
-}
-
-.btn-secondary {
-    width: 100%;
-    padding: 12px;
-    background: #ecf0f1;
-    color: #2c3e50;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-    background: #d5dbdb;
-}
-
 @media (max-width: 768px) {
     .sentiment-content {
         grid-template-columns: 1fr;
@@ -461,27 +378,14 @@ body {
             </div>
             
             <div class="input-section">
-    <input 
-        type="text" 
-        id="urlInput" 
-        placeholder="Inserta aqui la url del post que quieres analizar"
-        class="url-input"
-    >
-    <button id="analyzeBtn" class="btn-primary">Analizar</button>
-    <p class="help-text">Ejemplo: https://bsky.app/profile/usuario.bsky.social/post/...</p>
-</div>
-
-                <div id="analysisSection" class="hidden">
-                    <input 
-                        type="text" 
-                        id="urlInput" 
-                        placeholder="Inserta aqui la url del post que quieres analizar"
-                        class="url-input"
-                    >
-                    <button id="analyzeBtn" class="btn-primary">Analizar</button>
-                    <p class="help-text">Ejemplo: https://bsky.app/profile/usuario.bsky.social/post/...</p>
-                    <button id="changeTokenBtn" class="btn-secondary">Cambiar Token</button>
-                </div>
+                <input 
+                    type="text" 
+                    id="urlInput" 
+                    placeholder="Inserta aqui la url del post que quieres analizar"
+                    class="url-input"
+                >
+                <button id="analyzeBtn" class="btn-primary">Analizar</button>
+                <p class="help-text">Ejemplo: https://bsky.app/profile/usuario.bsky.social/post/...</p>
             </div>
 
             <div id="loadingSection" class="loading hidden">
@@ -510,6 +414,109 @@ body {
                 </div>
                 <div class="info-row">
                     <span class="label">Red Social:</span>
+                    <span class="value">Bluesky</span>
+                </div>
+            </div>
+
+            <div class="metrics-card">
+                <h3>Metricas del Post</h3>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <span class="metric-value" id="likesCount">-</span>
+                        <span class="metric-label">Likes</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="repostsCount">-</span>
+                        <span class="metric-label">Reposts</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="commentsCount">-</span>
+                        <span class="metric-label">Comentarios</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="reachCount">-</span>
+                        <span class="metric-label">Alcance Est.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sentiment-card">
+                <h3>Analisis de Sentiment</h3>
+                <div class="sentiment-content">
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                    <div class="sentiment-bars">
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot positive"></span>
+                                <span>Positivo</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar positive" id="positiveBar"></div>
+                                <span class="bar-percentage" id="positivePercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot neutral"></span>
+                                <span>Neutral</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar neutral" id="neutralBar"></div>
+                                <span class="bar-percentage" id="neutralPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-bar-item">
+                            <div class="sentiment-bar-label">
+                                <span class="sentiment-dot negative"></span>
+                                <span>Negativo</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar negative" id="negativeBar"></div>
+                                <span class="bar-percentage" id="negativePercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="conclusions-card">
+                <h3>Conclusiones del Analisis</h3>
+                <div id="conclusionsText" class="conclusions-text">
+                    Cargando conclusiones...
+                </div>
+                <div class="insights-grid">
+                    <div class="insight-item">
+                        <span class="insight-label">Tono emocional dominante:</span>
+                        <span class="insight-value" id="dominantTone">-</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-label">Nivel de engagement:</span>
+                        <span class="insight-value" id="engagementLevel">-</span>
+                    </div>
+                    <div class="insight-item">
+                        <span class="insight-label">Controversia detectada:</span>
+                        <span class="insight-value" id="controversyLevel">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="keywords-card">
+                <h3>Palabras Mas Frecuentes</h3>
+                <div id="keywordsContainer" class="keywords-container">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/bluesky-api.js"></script>
+    <script src="js/sentiment-ai.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html><span class="label">Red Social:</span>
                     <span class="value">Bluesky</span>
                 </div>
             </div>
