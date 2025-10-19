@@ -33,8 +33,9 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Modelo actualizado - mejor para sentiment
     const response = await fetch(
-      'https://api-inference.huggingface.co/models/cardiffnlp/twitter-xlm-roberta-base-sentiment-multilingual',
+      'https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment',
       {
         method: 'POST',
         headers: {

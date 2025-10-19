@@ -37,6 +37,8 @@ async function callNetlifyFunction(text) {
     
     const result = await response.json();
     
+    // El modelo nlptown devuelve estrellas (1-5)
+    // Mapeamos a sentiment: 1-2 = negative, 3 = neutral, 4-5 = positive
     if (Array.isArray(result) && result.length > 0) {
         const sentiments = Array.isArray(result[0]) ? result[0] : result;
         const topSentiment = sentiments.reduce((prev, current) => 
@@ -44,12 +46,21 @@ async function callNetlifyFunction(text) {
         );
         
         return {
-            label: normalizeSentimentLabel(topSentiment.label),
+            label: convertStarsToSentiment(topSentiment.label),
             score: topSentiment.score
         };
     }
     
     return { label: 'neutral', score: 1.0 };
+}
+
+function convertStarsToSentiment(starLabel) {
+    // El modelo devuelve "1 star", "2 stars", etc.
+    const stars = parseInt(starLabel.match(/\d+/)[0]);
+    
+    if (stars <= 2) return 'negative';
+    if (stars === 3) return 'neutral';
+    return 'positive';
 }
 
 function normalizeSentimentLabel(label) {
